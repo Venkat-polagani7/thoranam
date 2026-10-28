@@ -106,7 +106,7 @@ F.area.innerHTML='<option value="">Select locality</option>'+CONFIG.areas.concat
 function tot(){const p=P[F.design.value],q=+F.qty.value||1;$("#tot").textContent=p?(p.price==null?"Price will be confirmed by the seller.":"Estimated: "+CONFIG.currency+(p.price*q).toLocaleString("en-IN")+" + delivery (confirmed by seller)"):""}
 F.addEventListener("input",()=>{$("#oth").hidden=$("#on").hidden=F.area.value!=="Other Bengaluru area";tot()});
 function det(i){const p=P[i];$("#ovin").innerHTML=`<img src="${IMGS[i]}" alt="${p.n}"><div><button class="btn o" id="cl">Close</button><h2 style="margin-top:14px">${p.n}</h2><p class="price">${pr(p)}</p><p class="sm">Colours: ${p.colors}</p><h3>In the photo</h3><ul class="c"><li>Upper door toranam: ${p.top}</li><li>Side hangings: ${p.side}</li><li>Rangoli: ${p.muggu}</li></ul><p class="sm">Whether the rangoli is included in the price is confirmed by the seller. Lamps, pots and plants in the photo are styling only.</p><p><button class="btn" data-o="${i}">Order this design</button></p></div>`;$("#ov").classList.add("on");document.body.style.overflow="hidden";location.hash="d"+(i+1)}
-function closeD(){$("#ov").classList.remove("on");document.body.style.overflow="";history.replaceState(null,"",location.pathname+location.search)}
+function closeD(){$("#ov").classList.remove("on");document.body.style.overflow="";try{history.replaceState(null,"",location.pathname+location.search)}catch(x){}}
 document.addEventListener("click",e=>{const t=e.target,d=t.closest("[data-d]"),o=t.closest("[data-o]"),im=t.closest("img[data-i]");
  if(d||im)det((d||im).dataset.d??im.dataset.i);else if(o){closeD();F.design.value=o.dataset.o;tot();$("#order").scrollIntoView();F.name.focus({preventScroll:true})}else if(t.id==="cl")closeD()});
 addEventListener("keydown",e=>e.key==="Escape"&&closeD());
@@ -125,8 +125,8 @@ F.addEventListener("submit",e=>{e.preventDefault();let b=0;F.querySelectorAll(".
  const r=$("#res");if(b){r.innerHTML='<div class="box bad">Please fix the highlighted fields.</div>';F.querySelector("[aria-invalid]").focus();return}
  const text=msg();
  if(!CONFIG.whatsapp){r.innerHTML='<div class="box bad">The seller’s WhatsApp number is not set up yet, so the order cannot be sent. Copy the message below and send it to the seller yourself.<br><br><textarea readonly rows="8">'+text.replace(/</g,"&lt;")+'</textarea></div>';return}
- window.open("https://wa.me/"+CONFIG.whatsapp+"?text="+encodeURIComponent(text),"_blank");
- r.innerHTML='<div class="box good">WhatsApp should now be open with your order. Tap Send there. Your order is not placed until you send it and the seller confirms. Nothing was saved on this site.</div>'});
+ const link="https://wa.me/"+CONFIG.whatsapp+"?text="+encodeURIComponent(text);try{window.open(link,"_blank")}catch(x){}
+ r.innerHTML='<div class="box good">WhatsApp should now be open with your order. If it did not open, <a href="'+link+'" target="_blank" rel="noopener">tap here to open WhatsApp</a>. Tap Send there. Your order is not placed until you send it and the seller confirms. Nothing was saved on this site.</div>'});
 function qr(el,w){el.innerHTML="";try{new QRCode(el,{text:url(),width:w,height:w})}catch(x){el.textContent=url()}}
 function pp(h,cb){$("#print").innerHTML=h;cb();setTimeout(()=>window.print(),400)}
 window.printFlyer=()=>pp(`<div class="flyer"><div style="font:italic 600 18pt serif;color:#a8832f">${CONFIG.brand}</div><h1>Welcome Diwali at your doorstep</h1><div class="im"><img src="${IMGS[0]}"><img src="${IMGS[2]}"><img src="${IMGS[6]}"></div><p style="font-size:12pt">7 toranam designs with side hangings and matching rangoli.<br>Select Bengaluru areas only. Price and delivery confirmed on WhatsApp.</p><div id="fq" style="display:flex;justify-content:center;margin:6mm 0"></div><p>Scan to see all designs and order</p><p>${CONFIG.whatsapp?(CONFIG.phoneDisplay||"+"+CONFIG.whatsapp):"[add phone in CONFIG]"}</p></div>`,()=>qr($("#fq"),150));
